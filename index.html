@@ -1200,21 +1200,24 @@
                 <div class="perk"><span class="perk-check">✓</span> Pas d'engagement</div>
             </div>
         </div>
-        <div class="contact-form reveal d2">
+        <form class="contact-form reveal d2" id="form2" action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="8d22d622-512f-4aa6-8ebe-8b3074f464cc">
+            <input type="hidden" name="subject" value="Nouveau contact — Jardins de Soleil">
+            <input type="hidden" name="redirect" value="false">
             <div class="form-title">Envoyer un message</div>
             <div class="form-row">
                 <div class="form-field">
                     <label>Votre nom</label>
-                    <input type="text" placeholder="Jean Dupont">
+                    <input type="text" name="name" placeholder="Jean Dupont" required>
                 </div>
                 <div class="form-field">
                     <label>Téléphone</label>
-                    <input type="tel" placeholder="06 XX XX XX XX">
+                    <input type="tel" name="telephone" placeholder="06 XX XX XX XX">
                 </div>
             </div>
             <div class="form-field">
                 <label>Votre besoin</label>
-                <select>
+                <select name="projet">
                     <option value="">Choisissez une option...</option>
                     <option>Création de jardin</option>
                     <option>Entretien régulier</option>
@@ -1225,10 +1228,11 @@
             </div>
             <div class="form-field">
                 <label>Votre message</label>
-                <textarea placeholder="Décrivez votre projet en quelques mots..."></textarea>
+                <textarea name="message" placeholder="Décrivez votre projet en quelques mots..."></textarea>
             </div>
-            <button class="form-submit" type="button">📨 Envoyer ma demande</button>
-        </div>
+            <button class="form-submit" type="submit" id="btn2">📨 Envoyer ma demande</button>
+            <p id="form2-msg" style="margin-top:1rem;font-size:0.9rem;text-align:center;display:none;"></p>
+        </form>
     </div>
 </section>
 
@@ -1248,6 +1252,34 @@
 </footer>
 
 <script>
+// Web3Forms submit
+document.getElementById('form2').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn2');
+    const msg = document.getElementById('form2-msg');
+    btn.textContent = '⏳ Envoi en cours…';
+    btn.disabled = true;
+    const data = new FormData(this);
+    try {
+        const res = await fetch('https://api.web3forms.com/submit', { method:'POST', body: data });
+        const json = await res.json();
+        if (json.success) {
+            msg.textContent = '✓ Message envoyé ! Nous vous répondons sous 48h.';
+            msg.style.color = '#4a7a56';
+            this.reset();
+            btn.textContent = '✓ Message envoyé !';
+        } else {
+            throw new Error();
+        }
+    } catch {
+        msg.textContent = '✗ Erreur. Appelez directement le 06 00 00 00 00.';
+        msg.style.color = '#c4482a';
+        btn.textContent = '📨 Envoyer ma demande';
+        btn.disabled = false;
+    }
+    msg.style.display = 'block';
+});
+
 // Scroll reveal
 const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
